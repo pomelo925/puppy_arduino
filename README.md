@@ -3,4 +3,4 @@
 * Arduino UNO board
 * SG-90 servo * 12
 * PCA9685 (16pin PWM Servo control board)
-* 7.4V Li Battery
+* 7.4V Li Battery -> Buck converter Module > 5V
