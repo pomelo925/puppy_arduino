@@ -1,4 +1,5 @@
 #include <pwm_server.h>
+#include <kinematics.h>
 
 extern Adafruit_PWMServoDriver pwm;
 
@@ -7,9 +8,9 @@ void setup() {
   pwm.setPWMFreq(FREQ);  // This is the maximum PWM frequency
   Serial.begin(115200);
   
-  all_motor_init();
+  PWM::all_motor_init();
 }
 
 void loop(){
-  single_motor_manual(RH_Q2);
+  // single_motor_manual(RH_Q2);
 }

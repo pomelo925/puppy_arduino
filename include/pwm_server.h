@@ -14,15 +14,22 @@
 #define RF_Q2 7
 #define RF_Q3 8
 #define RH_Q1 9
-#define RH_Q2 14
+#define RH_Q2 10
 #define RH_Q3 11
 
 #define FREQ 30
 
 extern Adafruit_PWMServoDriver pwm;
 
-void servoWrite(int INDEX, double ANGLE);
-void single_motor_manual(int INDEX);
-void all_motor_init(void);
+namespace PWM{
+  void servoWrite(int INDEX, double ANGLE);
+  void single_motor_manual(int INDEX);
+  void all_motor_init(void);
+
+  extern double init_Q1;
+  extern double init_Q2;
+  extern double init_Q3; 
+}
+
 
 #endif
