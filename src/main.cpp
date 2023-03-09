@@ -9,8 +9,10 @@ void setup() {
   Serial.begin(115200);
   
   PWM::all_motor_init();
+  KINE::get_init();
 }
 
 void loop(){
   // single_motor_manual(RH_Q2);
+
 }
