@@ -25,10 +25,6 @@ namespace PWM{
   void servoWrite(int INDEX, double ANGLE);
   void single_motor_manual(int INDEX);
   void all_motor_init(void);
-
-  extern double init_Q1;
-  extern double init_Q2;
-  extern double init_Q3; 
 }
 
 

@@ -1,15 +1,10 @@
-#include <math.h>
+#include <type_traits>
+#include <cassert>
+
 #include <kinematics.h>
 #include <pwm_server.h>
+#include <description.h>
 
-// puppy description (unit: cm) 
-const static double L1 = 4.33;
-const static double L2 = 6.4;
-const static double L3 = 8;
-
-const static double BX = 17.2;
-const static double BY = 10;
-const static double BZ = 3.3;
 
 // initial EE(end effector) position (assume 4 legs are in same pos)
 // these are VITAL as being the initial point of trajectory
@@ -29,7 +24,7 @@ double LF_Q[3]={0,0,0};
 double LH_Q[3]={0,0,0};
 
 void KINE::get_init(void){
-  Q2pos(PWM::init_Q1, PWM::init_Q2, PWM::init_Q3);
+  Q2pos(init_Q1, init_Q2, init_Q3);
   show_Ixyz();
 }
 
@@ -54,7 +49,6 @@ double KINE::Sin(double angle){
 }
 
 
-
 void KINE::show_EE(void){
   Serial.println("=== EE INFO ===");
   Serial.println((String)"RF_EE: "+RF_pos[0]+"\t"+RF_pos[1]+"\t"+RF_pos[2]+"\t");
@@ -76,4 +70,58 @@ void KINE::show_Ixyz(void){
   Serial.println((String)"Ix: "+Ix);
   Serial.println((String)"Iy: "+Iy);
   Serial.println((String)"Iz: "+Iz);
+}
+
+std::vector<double> KINE::homo_transformation(std::vector<double> parent_frame, std::vector<std::vector<double>> homo_tf){
+  if (parent_frame.size() != 3) Serial.println("== ERROR : Invalid parent frame position ==");
+  if (homo_tf.size() != 4) Serial.println("== ERROR : Invalid params matrix ==");
+  
+  const std::vector<double> parent{
+    parent_frame[0], parent_frame[1], parent_frame[2], 1
+  };
+
+  return KINE::multiply(homo_tf, parent);
+}
+
+std::vector<std::vector<double>> KINE::generate_homo_matrix(std::vector<double> DH_param){
+  if(DH_param.size()!=4) Serial.println("== ERROR: Invalid Parameters Matrix!");
+
+  const double the = DH_param[0], alp = DH_param[1];
+  const double d = DH_param[2], r = DH_param[3];
+
+  const std::vector<std::vector<double>> homo{
+    {Cos(the) , -Sin(the)*Cos(alp) , sin(the)*sin(alp)  , r*cos(the)},
+    {sin(the) , cos(the)*cos(alp)  , -cos(the)*sin(alp) , r*sin(the)},
+    {0        , sin(alp)           , cos(alp)           , d         },
+    {0        , 0                  , 0                  , 1         }
+  };
+
+  return homo;
+}
+
+
+std::vector<double> KINE::multiply(const std::vector<std::vector<double>>& homo_tf, const std::vector<double>& pos){
+  const std::size_t H_cols = homo_tf[0].size();
+  const std::size_t P_rows = pos.size();
+  assert(H_cols == P_rows);
+
+  std::vector<double> result;
+  result.reserve(H_cols);
+  
+  for(const auto& M:homo_tf){
+    result.push_back(unit_inner_product(M, pos));
+  }
+
+  return result;
+}
+
+double KINE::unit_inner_product(const std::vector<double>& mat1, const std::vector<double>& mat2){
+  assert(mat1.size() == mat2.size());
+
+  double result = 0.0;
+  for(int i=0; i<int(mat1.size()); i++){
+    result += mat1[i]*mat2[i];
+  }
+
+  return result;
 }

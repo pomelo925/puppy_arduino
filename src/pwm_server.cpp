@@ -1,10 +1,5 @@
 #include <pwm_server.h>
-
-namespace PWM{
-  double init_Q1=0;
-  double init_Q2=-45;
-  double init_Q3=90;
-}
+#include <description.h>
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
@@ -14,7 +9,6 @@ void PWM::servoWrite(int INDEX, double ANGLE){
     double pulse_width=0;
 
 // mapping servo angle (input1, input2, original_ouptut1, original_output2)
-  bool flag;
   switch(INDEX){
     case LF_Q1:
       ANGLE = map(ANGLE, 0, 175, -60, 90); // 沒控制
